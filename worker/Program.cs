@@ -6,8 +6,14 @@ namespace worker
     {
         static void Main(string[] args)
         {
-            string line = Console.ReadLine();
-            Console.WriteLine(line);
+            do
+            {
+                string line = Console.ReadLine();
+
+                if(string.IsNullOrWhiteSpace(line)) break;
+
+                Console.WriteLine(line);
+            }while(true);
         }
     }
 }

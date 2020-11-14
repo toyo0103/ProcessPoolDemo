@@ -27,7 +27,7 @@ namespace demo1
         static void StartProcess()
         {
             var fileName = "dotnet";
-            var arguments = "../worker/bin/Debug/netcoreapp3.1/worker.dll ";
+            var arguments = "./worker/bin/Debug/netcoreapp3.1/worker.dll ";
             Process p = Process.Start(new ProcessStartInfo()
             {
                 FileName = fileName,
