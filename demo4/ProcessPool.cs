@@ -97,7 +97,7 @@ namespace demo4
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
             });
-
+            //p.ProcessorAffinity = (IntPtr)0x0001;
             p.PriorityClass = ProcessPriorityClass.Normal;
             p.Start();   
 
