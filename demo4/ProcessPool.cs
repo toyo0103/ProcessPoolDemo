@@ -58,6 +58,8 @@ namespace demo4
             TryTaskTask:
             while (this._queue.TryTake(out var task, _idleTimeout))
             {
+                lock (_root) _runningProcessCount++;
+                
                 process.StandardInput.WriteLine($"[{_name} - {Thread.CurrentThread.ManagedThreadId}] Do Task : {task}");
                 
                 //模擬 Task 執行時間
@@ -66,10 +68,10 @@ namespace demo4
                 
                 var response = process.StandardOutput.ReadLine();
                 Console.WriteLine(response);
+
+                lock (_root) _runningProcessCount --;
             }
             
-            lock (_root) _runningProcessCount --;
-
             if (_totalProcessCount <= _minProcess)
             {
                 Console.WriteLine($"[{_name} - {Thread.CurrentThread.ManagedThreadId}] idle timeout, process keep alive and wait next command.");
