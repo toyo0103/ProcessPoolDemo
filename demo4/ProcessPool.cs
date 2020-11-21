@@ -13,6 +13,8 @@ namespace demo4
         private CancellationTokenSource _cts;
         private string _name;
 
+        private ConsoleColor _consoleColor;
+
         private int _totalProcessCount = 0;
         private int _runningProcessCount = 0;
         private int _maxProcess = 0;
@@ -25,6 +27,7 @@ namespace demo4
             this._name = setting.Name;
             this._maxProcess = setting.MaxProcess;
             this._minProcess = setting.MinProcess;
+            this._consoleColor = setting.Color;
         }
 
         public void Enqueue(string task)
@@ -53,28 +56,28 @@ namespace demo4
             lock (_root) _totalProcessCount++;
 
             var process = this.GenerateProcess();
-            Console.WriteLine($"[{_name} - {Thread.CurrentThread.ManagedThreadId}] Process Created.");
+            this.WriteLine($"[{DateTime.Now.ToLongTimeString()}][{_name} - {Thread.CurrentThread.ManagedThreadId}] Process Created.");
 
             TryTaskTask:
             while (this._queue.TryTake(out var task, _idleTimeout))
             {
                 lock (_root) _runningProcessCount++;
                 
-                process.StandardInput.WriteLine($"[{_name} - {Thread.CurrentThread.ManagedThreadId}] Do Task : {task}");
+                process.StandardInput.WriteLine($"[{DateTime.Now.ToLongTimeString()}][{_name} - {Thread.CurrentThread.ManagedThreadId}] Do Task : {task}");
                 
                 //模擬 Task 執行時間
                 Random rnd = new Random();
                 Thread.Sleep(TimeSpan.FromMilliseconds(rnd.Next(200,500)));
                 
                 var response = process.StandardOutput.ReadLine();
-                Console.WriteLine(response);
+                this.WriteLine(response);
 
                 lock (_root) _runningProcessCount --;
             }
             
             if (_totalProcessCount <= _minProcess)
             {
-                Console.WriteLine($"[{_name} - {Thread.CurrentThread.ManagedThreadId}] idle timeout, process keep alive and wait next command.");
+                this.WriteLine($"[{DateTime.Now.ToLongTimeString()}][{_name} - {Thread.CurrentThread.ManagedThreadId}] idle timeout, process keep alive and wait next command.");
                 goto TryTaskTask;
             } 
 
@@ -83,8 +86,8 @@ namespace demo4
             process.StandardInput.Close();
             process.WaitForExit();
             _threads.TryRemove(Thread.CurrentThread.ManagedThreadId, out var t);
-            Console.WriteLine($"[{_name} - {Thread.CurrentThread.ManagedThreadId}] idle timeout");
-            Console.WriteLine($"[{_name} - {Thread.CurrentThread.ManagedThreadId}] close process");
+            this.WriteLine($"[{DateTime.Now.ToLongTimeString()}][{_name} - {Thread.CurrentThread.ManagedThreadId}] idle timeout");
+            this.WriteLine($"[{DateTime.Now.ToLongTimeString()}][{_name} - {Thread.CurrentThread.ManagedThreadId}] close process");
         }
 
         private Process GenerateProcess()
@@ -111,6 +114,18 @@ namespace demo4
             this._queue.CompleteAdding();
             _cts.Cancel();
             foreach (Thread t in _threads.Values) t.Join();
+        }
+
+        public static object WriteTextObj = new object();
+
+        private void WriteLine(string text)
+        {
+            lock(WriteTextObj)
+            {
+                Console.ForegroundColor = _consoleColor;
+                Console.WriteLine(text);
+                Console.ResetColor();
+            }
         }
     }
 }

@@ -24,9 +24,9 @@ namespace demo4
         static void Init()
         {
             TaskProcessMapping = new ConcurrentDictionary<string, ProcessPool>();
-            TaskProcessMapping.TryAdd("Task_0",new ProcessPool(new ProcessPoolSetting{ Name = "Task_0", MaxProcess = 2, MinProcess = 0 }));
-            TaskProcessMapping.TryAdd("Task_1",new ProcessPool(new ProcessPoolSetting{ Name = "Task_1", MaxProcess = 3, MinProcess = 0 }));
-            TaskProcessMapping.TryAdd("Task_2",new ProcessPool(new ProcessPoolSetting{ Name = "Task_2", MaxProcess = 4, MinProcess = 1 }));
+            TaskProcessMapping.TryAdd("Task_0",new ProcessPool(new ProcessPoolSetting{ Name = "Task_0", MaxProcess = 2, MinProcess = 0, Color = ConsoleColor.DarkCyan }));
+            TaskProcessMapping.TryAdd("Task_1",new ProcessPool(new ProcessPoolSetting{ Name = "Task_1", MaxProcess = 3, MinProcess = 0, Color = ConsoleColor.DarkBlue}));
+            TaskProcessMapping.TryAdd("Task_2",new ProcessPool(new ProcessPoolSetting{ Name = "Task_2", MaxProcess = 4, MinProcess = 1, Color = ConsoleColor.DarkRed }));
         }
     }
 }

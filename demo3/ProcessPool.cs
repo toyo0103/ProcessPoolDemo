@@ -37,7 +37,7 @@ namespace demo3
 
             while (this._queue.TryTake(out var task, _idleTimeout))
             {
-                process.StandardInput.WriteLine($"[{_name} - {Thread.CurrentThread.ManagedThreadId}] Do Task : {task}");
+                process.StandardInput.WriteLine($"[{DateTime.Now.ToLongTimeString()}][{_name} - {Thread.CurrentThread.ManagedThreadId}] Do Task : {task}");
                 var response = process.StandardOutput.ReadLine();
                 Console.WriteLine(response);
             }
@@ -45,8 +45,8 @@ namespace demo3
             process.StandardInput.Close();
             process.WaitForExit();
             _threads.TryRemove(Thread.CurrentThread.ManagedThreadId, out var t);
-            Console.WriteLine($"[{_name} - {Thread.CurrentThread.ManagedThreadId}] idle timeout");
-            Console.WriteLine($"[{_name} - {Thread.CurrentThread.ManagedThreadId}] close process");
+            Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}][{_name} - {Thread.CurrentThread.ManagedThreadId}] idle timeout");
+            Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}][{_name} - {Thread.CurrentThread.ManagedThreadId}] close process");
         }
 
         private Process GenerateProcess()
