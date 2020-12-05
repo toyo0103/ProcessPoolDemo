@@ -11,13 +11,24 @@ namespace demo5
         {
             Init();
             
-            int count = 50;
-            for (int i = 0; i < count; i++)
+            while(true)
             {
-                var taskName = $"Task_{ i%3}";
-                var processPool = TaskProcessMapping[taskName];
-                var taskData = Guid.NewGuid().ToString();
-                processPool.Enqueue(taskData);
+                var command = Console.ReadLine();
+                if(string.IsNullOrWhiteSpace(command)) break;
+
+                foreach(var tasks in command.Split(",",StringSplitOptions.RemoveEmptyEntries))
+                {
+                    //1:10 => task_1 : 10 tasks
+                    var taskWithCount = tasks.Split(":",StringSplitOptions.RemoveEmptyEntries);
+
+                    for (int i = 0; i < int.Parse(taskWithCount[1]); i++)
+                    {
+                        var taskName = $"Task_{taskWithCount[0]}";
+                        var processPool = TaskProcessMapping[taskName];
+                        var taskData = $"Id = {i}";
+                        processPool.Enqueue(taskData);
+                    }
+                }
             }
         }
 
