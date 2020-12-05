@@ -9,7 +9,7 @@ namespace demo4
     {
         internal BlockingCollection<string> _queue = new BlockingCollection<string>();
         private ConcurrentDictionary<int, Thread> _threads = new ConcurrentDictionary<int, Thread>();
-        private TimeSpan _idleTimeout = TimeSpan.FromSeconds(10);
+        private TimeSpan _idleTimeout;
         private CancellationTokenSource _cts;
         private string _name;
 
@@ -28,6 +28,7 @@ namespace demo4
             this._maxProcess = setting.MaxProcess;
             this._minProcess = setting.MinProcess;
             this._consoleColor = setting.Color;
+            this._idleTimeout = setting.IdelTimeout;
         }
 
         public void Enqueue(string task)
