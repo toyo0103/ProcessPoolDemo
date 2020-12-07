@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,21 +12,40 @@ namespace dashboard.Controllers
     [Route("[controller]")]
     public class ReportController : ControllerBase
     {
+        //time, process count, task count
+        static ConcurrentDictionary<string,List<Tuple<string, int, int>>> MetricDataStorage = 
+            new ConcurrentDictionary<string, List<Tuple<string, int, int>>>();
+
+
         [Route("metrics")]
         [HttpGet]
         public IEnumerable<string> Get(string task)
         {
-            Random rnd = new Random();
-            var array = new List<Tuple<string,int,int>>();
-            array.Add(new Tuple<string, int, int>("01:00",  rnd.Next(1,1000), rnd.Next(1,400)));
-            array.Add(new Tuple<string, int, int>("01:05",  rnd.Next(1,1000), rnd.Next(1,400)));
-            array.Add(new Tuple<string, int, int>("01:10",  rnd.Next(1,1000), rnd.Next(1,400)));
-            array.Add(new Tuple<string, int, int>("01:20",  rnd.Next(1,1000), rnd.Next(1,400)));
+           if(MetricDataStorage.TryGetValue(task,out var datas))
+           {
+               foreach(var data in datas)
+               {
+                    yield return $"{data.Item1},{data.Item2},{data.Item3}";
+               }
+           }
+           yield break;
+        }
 
-            foreach(var a in array)
+        [Route("metrics")]
+        [HttpPost]
+        public ActionResult SetMetricValue(SetMetricValueParameter parameter)
+        {
+            if(MetricDataStorage.ContainsKey(parameter.TaskName) == false)
             {
-                yield return $"{a.Item1},{a.Item2},{a.Item3}";
+                MetricDataStorage.TryAdd(parameter.TaskName, new List<Tuple<string, int, int>>());
             }
+
+            MetricDataStorage[parameter.TaskName].Add(new Tuple<string, int, int>(
+                DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                parameter.ProcessCount,
+                parameter.TaskCount
+            ));
+            return Ok();
         }
     }
 }

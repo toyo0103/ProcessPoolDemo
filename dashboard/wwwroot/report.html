@@ -32,14 +32,30 @@
         
         rows.forEach(element => {
             var datas = element.split(',');
-            chartJobDict.push([datas[0], parseInt(datas[1]),parseInt(datas[2])]);
+            chartJobDict.push([new Date(datas[0]), parseInt(datas[1]),parseInt(datas[2])]);
         })
         
         var data = google.visualization.arrayToDataTable(chartJobDict);
 
         var chart = new google.visualization.LineChart(document.getElementById(chart_name));
 
-        chart.draw(data, {title: chart_name + ' Status'});
+        chart.draw(data, {
+          title: chart_name + ' Status',
+          hAxis: {
+                    title: 'Time',
+                    format: 'HH:mm:ss'
+                    //minValue: 0
+          },
+          vAxis: {
+              title: 'Count',
+              minValue: 0,
+              //gridlines: { count: -1 },
+              //format: '0'
+          },
+          timeline: {
+              groupByRowLabel: true
+          }
+        });
       }
 
       function loadData() {
