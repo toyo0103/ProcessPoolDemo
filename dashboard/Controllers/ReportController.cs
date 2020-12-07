@@ -12,7 +12,7 @@ namespace dashboard.Controllers
     [Route("[controller]")]
     public class ReportController : ControllerBase
     {
-        //time, process count, task count
+        //time, process count, queue length
         static ConcurrentDictionary<string,List<Tuple<string, int, int>>> MetricDataStorage = 
             new ConcurrentDictionary<string, List<Tuple<string, int, int>>>();
 
@@ -43,7 +43,7 @@ namespace dashboard.Controllers
             MetricDataStorage[parameter.TaskName].Add(new Tuple<string, int, int>(
                 DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                 parameter.ProcessCount,
-                parameter.TaskCount
+                parameter.QueueLength
             ));
             return Ok();
         }

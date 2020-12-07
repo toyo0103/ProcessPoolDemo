@@ -15,7 +15,6 @@ namespace demo5
             {
                 var command = Console.ReadLine();
                 if(string.IsNullOrWhiteSpace(command)) break;
-
                 foreach(var tasks in command.Split(",",StringSplitOptions.RemoveEmptyEntries))
                 {
                     //1:10 => task_1 : 10 tasks
@@ -26,6 +25,7 @@ namespace demo5
                         var taskName = $"Task_{taskWithCount[0]}";
                         var processPool = TaskProcessMapping[taskName];
                         var taskData = $"Id = {i}";
+                        Thread.Sleep(TimeSpan.FromMilliseconds(50));
                         processPool.Enqueue(taskData);
                     }
                 }
@@ -35,9 +35,9 @@ namespace demo5
         static void Init()
         {
             TaskProcessMapping = new ConcurrentDictionary<string, ProcessPool>();
-            TaskProcessMapping.TryAdd("Task_0",new ProcessPool(new ProcessPoolSetting{ Name = "Task_0", MaxProcess = 2, MinProcess = 0, Color = ConsoleColor.DarkCyan }));
-            TaskProcessMapping.TryAdd("Task_1",new ProcessPool(new ProcessPoolSetting{ Name = "Task_1", MaxProcess = 3, MinProcess = 0, Color = ConsoleColor.DarkBlue}));
-            TaskProcessMapping.TryAdd("Task_2",new ProcessPool(new ProcessPoolSetting{ Name = "Task_2", MaxProcess = 4, MinProcess = 1, Color = ConsoleColor.DarkRed }));
+            TaskProcessMapping.TryAdd("Task_0",new ProcessPool(new ProcessPoolSetting{ Name = "Task_0", MaxProcess = 2, MinProcess = 0, Color = ConsoleColor.DarkCyan, IdelTimeout = TimeSpan.FromMinutes(1) }));
+            TaskProcessMapping.TryAdd("Task_1",new ProcessPool(new ProcessPoolSetting{ Name = "Task_1", MaxProcess = 3, MinProcess = 0, Color = ConsoleColor.DarkBlue, IdelTimeout = TimeSpan.FromSeconds(5)}));
+            TaskProcessMapping.TryAdd("Task_2",new ProcessPool(new ProcessPoolSetting{ Name = "Task_2", MaxProcess = 4, MinProcess = 1, Color = ConsoleColor.DarkRed, IdelTimeout = TimeSpan.FromSeconds(20) }));
         }
     }
 }

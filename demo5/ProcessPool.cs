@@ -2,6 +2,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading;
+using Newtonsoft.Json;
+using RestSharp;
 
 namespace demo5
 {
@@ -20,7 +22,7 @@ namespace demo5
         private int _maxProcess = 0;
         private int _minProcess = 0;
         private object _root = new object();
-
+        private Thread _monitorThread;
         public ProcessPool(ProcessPoolSetting setting)
         {
             this._cts = new CancellationTokenSource();
@@ -29,6 +31,10 @@ namespace demo5
             this._minProcess = setting.MinProcess;
             this._consoleColor = setting.Color;
             this._idleTimeout = setting.IdelTimeout;
+
+            _monitorThread = new Thread(MonitorBody);
+            _monitorThread.Start();
+
         }
 
         public void Enqueue(string task)
@@ -57,8 +63,6 @@ namespace demo5
             lock (_root) _totalProcessCount++;
 
             var process = this.GenerateProcess();
-            this.WriteLine($"[{DateTime.Now.ToLongTimeString()}][{_name} - {Thread.CurrentThread.ManagedThreadId}] Process Created.");
-
             TryTaskTask:
             while (this._queue.TryTake(out var task, _idleTimeout))
             {
@@ -71,14 +75,11 @@ namespace demo5
                 Thread.Sleep(TimeSpan.FromMilliseconds(rnd.Next(200,500)));
                 
                 var response = process.StandardOutput.ReadLine();
-                this.WriteLine(response);
-
                 lock (_root) _runningProcessCount --;
             }
             
             if (_totalProcessCount <= _minProcess)
             {
-                this.WriteLine($"[{DateTime.Now.ToLongTimeString()}][{_name} - {Thread.CurrentThread.ManagedThreadId}] idle timeout, process keep alive and wait next command.");
                 goto TryTaskTask;
             } 
 
@@ -87,8 +88,6 @@ namespace demo5
             process.StandardInput.Close();
             process.WaitForExit();
             _threads.TryRemove(Thread.CurrentThread.ManagedThreadId, out var t);
-            this.WriteLine($"[{DateTime.Now.ToLongTimeString()}][{_name} - {Thread.CurrentThread.ManagedThreadId}] idle timeout");
-            this.WriteLine($"[{DateTime.Now.ToLongTimeString()}][{_name} - {Thread.CurrentThread.ManagedThreadId}] close process");
         }
 
         private Process GenerateProcess()
@@ -110,23 +109,35 @@ namespace demo5
             return p;       
         }
 
+        public void MonitorBody()
+        {
+            while(_cts.IsCancellationRequested == false)
+            {
+                var client = new RestClient("http://localhost:5000/report/metrics");
+                var request = new RestRequest(Method.POST);
+                request.AddHeader("content-type", "application/json");
+
+                var data = new 
+                {
+                    TaskName = _name,
+                    ProcessCount = _threads.Count,
+                    QueueLength = _queue.Count
+                };
+                request.AddParameter("application/json", JsonConvert.SerializeObject(data), ParameterType.RequestBody);
+                IRestResponse response = client.Execute(request);
+
+                Thread.Sleep(TimeSpan.FromSeconds(5));
+            }
+        }
+
         public void Dispose()
         {
             this._queue.CompleteAdding();
             _cts.Cancel();
+            _monitorThread.Join();
             foreach (Thread t in _threads.Values) t.Join();
         }
 
         public static object WriteTextObj = new object();
-
-        private void WriteLine(string text)
-        {
-            lock(WriteTextObj)
-            {
-                Console.ForegroundColor = _consoleColor;
-                Console.WriteLine(text);
-                Console.ResetColor();
-            }
-        }
     }
 }

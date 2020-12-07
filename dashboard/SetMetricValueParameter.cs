@@ -4,6 +4,6 @@ namespace dashboard
     {
         public string TaskName{get;set;}
         public int ProcessCount{get;set;}
-        public int TaskCount {get;set;}
+        public int QueueLength {get;set;}
     }
 }

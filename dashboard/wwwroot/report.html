@@ -27,12 +27,12 @@
 
       function drawChart(chart_name, rows) {
         var chartJobDict = [
-          ['Time', 'Process Count', 'Task Count'],
+          ['Time', 'Process Count', 'Queue Length'],
         ];
         
         rows.forEach(element => {
             var datas = element.split(',');
-            chartJobDict.push([new Date(datas[0]), parseInt(datas[1]),parseInt(datas[2])]);
+            chartJobDict.push([new Date(datas[0]), parseInt(datas[1]), parseInt(datas[2])]);
         })
         
         var data = google.visualization.arrayToDataTable(chartJobDict);
