@@ -24,7 +24,6 @@ namespace demo3
 
         static void Init()
         {
-            TaskProcessMapping = new ConcurrentDictionary<string, ProcessPool>();
             TaskProcessMapping.TryAdd("Task_0",new ProcessPool("Task_0"));
             TaskProcessMapping.TryAdd("Task_1",new ProcessPool("Task_1"));
             TaskProcessMapping.TryAdd("Task_2",new ProcessPool("Task_2"));

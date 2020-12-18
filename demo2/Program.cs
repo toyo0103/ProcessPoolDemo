@@ -34,7 +34,6 @@ namespace demo1
 
         static void Init()
         {
-            TaskProcessMapping = new ConcurrentDictionary<string, Process>();
             TaskProcessMapping.TryAdd("Task_1",GenerateProcess());
         }
 

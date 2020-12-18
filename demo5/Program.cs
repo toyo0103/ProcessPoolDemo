@@ -23,10 +23,13 @@ namespace demo5
                     for (int i = 0; i < int.Parse(taskWithCount[1]); i++)
                     {
                         var taskName = $"Task_{taskWithCount[0]}";
-                        var processPool = TaskProcessMapping[taskName];
-                        var taskData = $"Id = {i}";
-                        Thread.Sleep(TimeSpan.FromMilliseconds(50));
-                        processPool.Enqueue(taskData);
+
+                        if(TaskProcessMapping.TryGetValue(taskName,out var processPool))
+                        {
+                            var taskData = $"Id = {i}";
+                            Thread.Sleep(TimeSpan.FromMilliseconds(50));
+                            processPool.Enqueue(taskData);
+                        }
                     }
                 }
             }
